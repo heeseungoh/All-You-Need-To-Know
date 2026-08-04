@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spoiler-Free Movie Briefing</title>
+  <title>All You Need to Know — Spoiler-Free Movie Briefing</title>
   <link rel="preconnect" href="https://image.tmdb.org" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -12,10 +12,10 @@
     <header class="topbar">
       <div class="brand">
         <span class="brand-mark">🎬</span>
-        <div>
-          <h1>Spoiler-Free Movie Briefing</h1>
+        <a href="./" class="brand-link">
+          <h1>All You Need to Know</h1>
           <p class="tagline">Everything you need before the movie — none of what you shouldn't know.</p>
-        </div>
+        </a>
       </div>
       <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
     </header>
@@ -47,6 +47,7 @@
           <button class="chip" data-q="Everything Everywhere All at Once">Everything Everywhere All at Once</button>
         </div>
       </div>
+      <section id="historySection" class="history-section" hidden></section>
     </main>
 
     <footer class="footer">

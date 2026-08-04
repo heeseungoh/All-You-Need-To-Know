@@ -191,9 +191,80 @@ async function selectMovie(id) {
       } catch (_) { /* non-fatal */ }
     }
     renderBriefing(movie, collection);
+    saveToHistory(movie);
+    setUrlForMovie(movie.id);
   } catch (err) {
     handleKeyError(err);
   }
+}
+
+/* ---------- Recently viewed history + deep links ---------- */
+const HISTORY_STORAGE = "recent_movies_v1";
+const HISTORY_MAX = 12;
+
+function getHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_STORAGE)) || [];
+  } catch (_) {
+    return [];
+  }
+}
+function saveToHistory(movie) {
+  const entry = {
+    id: movie.id,
+    title: movie.title,
+    year: movie.release_date ? movie.release_date.slice(0, 4) : "",
+    poster: movie.poster_path || null,
+  };
+  const list = getHistory().filter((m) => m.id !== movie.id);
+  list.unshift(entry);
+  localStorage.setItem(HISTORY_STORAGE, JSON.stringify(list.slice(0, HISTORY_MAX)));
+  renderHistory();
+}
+function clearHistory() {
+  localStorage.removeItem(HISTORY_STORAGE);
+  renderHistory();
+}
+function renderHistory() {
+  const wrap = document.getElementById("historySection");
+  if (!wrap) return;
+  const list = getHistory();
+  if (!list.length) {
+    wrap.hidden = true;
+    return;
+  }
+  wrap.hidden = false;
+  wrap.innerHTML = `
+    <div class="history-head">
+      <span>🕘 Recently briefed</span>
+      <button id="clearHistoryBtn" class="link-btn">Clear</button>
+    </div>
+    <div class="history-list">
+      ${list
+        .map(
+          (m) => `<button class="history-item" data-id="${m.id}">
+            ${
+              m.poster
+                ? `<img src="${IMG_BASE}/w92${m.poster}" alt="" loading="lazy" />`
+                : `<span class="poster-fallback">🎬</span>`
+            }
+            <span class="history-title">${escapeHtml(m.title)}</span>
+            ${m.year ? `<span class="history-year">${m.year}</span>` : ""}
+          </button>`
+        )
+        .join("")}
+    </div>`;
+  wrap.querySelectorAll(".history-item").forEach((btn) => {
+    btn.addEventListener("click", () => selectMovie(Number(btn.dataset.id)));
+  });
+  const clearBtn = document.getElementById("clearHistoryBtn");
+  if (clearBtn) clearBtn.addEventListener("click", clearHistory);
+}
+
+function setUrlForMovie(id) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("movie", id);
+  history.replaceState({ movie: id }, "", url.toString());
 }
 
 function getCertification(movie) {
@@ -393,6 +464,7 @@ function renderBriefing(movie, collection) {
         ${movie.tagline ? `<p class="hero-tag">"${escapeHtml(movie.tagline)}"</p>` : ""}
         <div class="meta-row">${metaPills}</div>
         <div class="genres">${genres.map((g) => `<span class="genre-tag">${escapeHtml(g)}</span>`).join("")}</div>
+        <button class="share-btn" data-id="${movie.id}" data-title="${escapeHtml(movie.title)}">🔗 Share this briefing</button>
       </div>
     </div>
 
@@ -428,6 +500,29 @@ function renderBriefing(movie, collection) {
 
   els.main.innerHTML = "";
   els.main.appendChild(briefing);
+
+  const shareBtn = briefing.querySelector(".share-btn");
+  if (shareBtn) {
+    shareBtn.addEventListener("click", async () => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("movie", shareBtn.dataset.id);
+      const shareUrl = url.toString();
+      const shareData = {
+        title: `${shareBtn.dataset.title} — All You Need to Know`,
+        text: `Spoiler-free briefing for ${shareBtn.dataset.title}`,
+        url: shareUrl,
+      };
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          await navigator.clipboard.writeText(shareUrl);
+          shareBtn.textContent = "✔ Link copied!";
+          setTimeout(() => (shareBtn.textContent = "🔗 Share this briefing"), 1800);
+        }
+      } catch (_) { /* user cancelled */ }
+    });
+  }
 }
 
 /* ---------- UI states ---------- */
@@ -541,7 +636,12 @@ function escapeHtml(str) {
 
 /* ---------- Init ---------- */
 (function init() {
-  if (!getKey()) {
+  renderHistory();
+  const params = new URLSearchParams(window.location.search);
+  const movieId = params.get("movie");
+  if (movieId && getKey()) {
+    selectMovie(Number(movieId));
+  } else if (!getKey()) {
     // Gentle nudge on first load.
     setTimeout(() => openSettings("Add your free TMDB key to get started."), 400);
   }

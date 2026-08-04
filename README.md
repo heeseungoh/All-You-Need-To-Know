@@ -1,6 +1,6 @@
-# 🎬 Spoiler-Free Movie Briefing
+# 🎬 All You Need to Know
 
-Enter any movie you're about to watch and get **everything you need to know beforehand — without spoilers**. Just context: the tone, the cast and who they play, who directed it, where it sits in a series, its content rating, and a spoiler-free premise. So you can walk in ready.
+**Everything you need to know before a movie — without spoilers.** Enter any movie you're about to watch and get just the context: the tone, the cast and who they play, who directed it, where it sits in a series, its content rating, where to watch it, and a spoiler-free premise. So you can walk in ready — no pausing to ask "wait, who's that?"
 
 **Live demo:** enable GitHub Pages (see below) or just open `index.html` locally.
 
@@ -13,6 +13,9 @@ Enter any movie you're about to watch and get **everything you need to know befo
 - **📚 Where it sits in a series** — for sequels/franchises, it shows the full release order and how many films come before the one you're watching.
 - **📋 Good to know** — director, writers, genre, country, runtime, and content rating.
 - **🔞 Content rating** — surfaced prominently so you know what you're getting into.
+- **📺 Where to watch** — streaming, rent, and buy options for your region (powered by JustWatch via TMDB).
+- **🕘 Recently briefed** — quick access to movies you've looked up, stored locally.
+- **🔗 Shareable links** — every briefing has its own URL you can send to a friend.
 
 By design, it deliberately **does not** fetch reviews, plot keywords, or the full synopsis — the exact things that tend to leak twists.
 
