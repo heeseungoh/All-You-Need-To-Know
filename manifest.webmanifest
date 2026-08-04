@@ -1,0 +1,16 @@
+{
+  "name": "All You Need to Know — Spoiler-Free Movie Briefing",
+  "short_name": "All You Need to Know",
+  "description": "Everything you need before a movie — cast, director, series order, content rating, and a spoiler-free premise. No spoilers, just context.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Crect%20width='100'%20height='100'%20rx='20'%20fill='%230d1117'/%3E%3Ctext%20x='50'%20y='72'%20font-size='60'%20text-anchor='middle'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

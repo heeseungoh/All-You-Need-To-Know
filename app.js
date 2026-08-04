@@ -37,12 +37,15 @@ const els = {
 /* ---------- Theme ---------- */
 const THEME_STORAGE = "theme_v1";
 function applyTheme(theme) {
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (theme === "light") {
     document.documentElement.setAttribute("data-theme", "light");
     if (els.themeBtn) els.themeBtn.textContent = "☀️";
+    if (metaTheme) metaTheme.setAttribute("content", "#f4f6fb");
   } else {
     document.documentElement.removeAttribute("data-theme");
     if (els.themeBtn) els.themeBtn.textContent = "🌙";
+    if (metaTheme) metaTheme.setAttribute("content", "#0d1117");
   }
 }
 function initTheme() {
