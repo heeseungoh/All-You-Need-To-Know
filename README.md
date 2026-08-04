@@ -2,10 +2,6 @@
 
 Everything you need to know before a movie, without spoilers. Enter any movie you're about to watch and get just the context: the tone, the cast and who they play, who directed it, where it sits in a series, its content rating, where to watch it, and a spoiler-free premise. That way you can walk in ready, without pausing to ask "wait, who's that?"
 
-**Live demo:** enable GitHub Pages (see below) or just open `index.html` locally.
-
-![data TMDB](https://img.shields.io/badge/data-TMDB-01b4e4) ![No backend](https://img.shields.io/badge/backend-none-3fb950) ![Cost](https://img.shields.io/badge/cost-%240-brightgreen)
-
 ## What it gives you
 
 - **Spoiler-free premise.** The synopsis is trimmed to just the setup (the first couple of sentences). Plot turns and endings are never shown.
