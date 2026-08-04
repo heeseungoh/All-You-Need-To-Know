@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spoiler-Free Movie Briefing</title>
+  <link rel="preconnect" href="https://image.tmdb.org" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">🎬</span>
+        <div>
+          <h1>Spoiler-Free Movie Briefing</h1>
+          <p class="tagline">Everything you need before the movie — none of what you shouldn't know.</p>
+        </div>
+      </div>
+      <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
+    </header>
+
+    <section class="search-wrap">
+      <div class="search-box">
+        <span class="search-icon">🔎</span>
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="Enter a movie you're about to watch…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="clearBtn" class="clear-btn" aria-label="Clear" hidden>✕</button>
+      </div>
+      <ul id="suggestions" class="suggestions" hidden></ul>
+    </section>
+
+    <main id="main" class="content">
+      <div id="emptyState" class="empty-state">
+        <div class="empty-emoji">🍿</div>
+        <h2>Search a movie to get briefed</h2>
+        <p>You'll get the tone, the cast, who directed it, where it sits in a series, content rating, and a spoiler-free premise — so you can walk in ready.</p>
+        <div class="chips" id="exampleChips">
+          <button class="chip" data-q="Dune: Part Two">Dune: Part Two</button>
+          <button class="chip" data-q="Oppenheimer">Oppenheimer</button>
+          <button class="chip" data-q="Spider-Man: No Way Home">Spider-Man: No Way Home</button>
+          <button class="chip" data-q="Everything Everywhere All at Once">Everything Everywhere All at Once</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>Data by <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">The Movie Database (TMDB)</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+    </footer>
+  </div>
+
+  <!-- Settings / API key modal -->
+  <div id="settingsModal" class="modal" hidden>
+    <div class="modal-card">
+      <button id="closeSettings" class="icon-btn modal-close" aria-label="Close">✕</button>
+      <h2>Set your TMDB API key</h2>
+      <p class="modal-sub">The app talks to TMDB directly from your browser. Your key stays on this device (localStorage) and is never sent anywhere else.</p>
+      <ol class="steps">
+        <li>Create a free account at <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">themoviedb.org</a>.</li>
+        <li>Go to <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Settings → API</a> and request a key (choose "Developer").</li>
+        <li>Copy your <strong>API Read Access Token (v4)</strong> <em>or</em> your <strong>API Key (v3)</strong> and paste it below.</li>
+      </ol>
+      <label class="field-label" for="apiKeyInput">API key or v4 token</label>
+      <input id="apiKeyInput" type="password" placeholder="Paste your TMDB key or token" />
+      <div class="modal-actions">
+        <button id="saveKey" class="primary-btn">Save key</button>
+        <button id="clearKey" class="ghost-btn">Remove saved key</button>
+      </div>
+      <p id="keyStatus" class="key-status"></p>
+    </div>
+  </div>
+
+  <template id="briefingTemplate"></template>
+
+  <script src="app.js"></script>
+</body>
+</html>
