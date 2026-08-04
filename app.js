@@ -2,7 +2,7 @@
  * Zero-cost, browser-only app powered by the TMDB API.
  * The key deliberately avoids requesting anything that would reveal plot twists:
  * we show tagline + a trimmed, non-spoiler premise, cast/characters, crew,
- * series position, content rating, and practical facts — but never the full
+ * series position, content rating, and practical facts, but never the full
  * synopsis, keywords, or reviews that tend to leak endings.
  */
 
@@ -181,10 +181,10 @@ function renderSuggestions() {
   }
   els.suggestions.innerHTML = currentResults
     .map((m, i) => {
-      const year = m.release_date ? m.release_date.slice(0, 4) : "—";
+      const year = m.release_date ? m.release_date.slice(0, 4) : "";
       const poster = m.poster_path
         ? `<img src="${IMG_BASE}/w92${m.poster_path}" alt="" loading="lazy" />`
-        : `<span class="poster-fallback">🎬</span>`;
+        : `<span class="poster-fallback"></span>`;
       return `<li data-index="${i}" data-id="${m.id}">
         ${poster}
         <div class="sugg-meta">
@@ -267,7 +267,7 @@ function renderHistory() {
   wrap.hidden = false;
   wrap.innerHTML = `
     <div class="history-head">
-      <span>🕘 Recently briefed</span>
+      <span>Recently briefed</span>
       <button id="clearHistoryBtn" class="link-btn">Clear</button>
     </div>
     <div class="history-list">
@@ -277,7 +277,7 @@ function renderHistory() {
             ${
               m.poster
                 ? `<img src="${IMG_BASE}/w92${m.poster}" alt="" loading="lazy" />`
-                : `<span class="poster-fallback">🎬</span>`
+                : `<span class="poster-fallback"></span>`
             }
             <span class="history-title">${escapeHtml(m.title)}</span>
             ${m.year ? `<span class="history-year">${m.year}</span>` : ""}
@@ -315,7 +315,7 @@ function getCertification(movie) {
 
 /* Trim a synopsis to a spoiler-safe premise: keep only the setup.
  * We keep at most the first 2 sentences (the "hook"), which describe the
- * premise, and strip anything after — later sentences tend to reveal turns. */
+ * premise, and strip anything after (later sentences tend to reveal turns). */
 function safePremise(overview) {
   if (!overview) return null;
   const sentences = overview.match(/[^.!?]+[.!?]+/g);
@@ -345,13 +345,13 @@ function buildProvidersCard(movie) {
   const data = all[region];
   if (!data) {
     return `<div class="card">
-      <h3>📺 Where to watch</h3>
+      <h3>Where to watch</h3>
       <p class="cast-role">No streaming, rental, or purchase options listed for ${escapeHtml(
         region
-      )}. Try another region in ⚙️ settings.</p>
+      )}. Try another region in settings.</p>
     </div>`;
   }
-  const section = (label, list, icon) => {
+  const section = (label, list) => {
     if (!list || !list.length) return "";
     const logos = list
       .slice(0, 8)
@@ -367,25 +367,25 @@ function buildProvidersCard(movie) {
       )
       .join("");
     return `<div class="prov-group">
-      <span class="prov-label">${icon} ${label}</span>
+      <span class="prov-label">${label}</span>
       <div class="prov-logos">${logos}</div>
     </div>`;
   };
   const body =
-    section("Stream", data.flatrate, "▶️") +
-    section("Rent", data.rent, "💵") +
-    section("Buy", data.buy, "🛒");
+    section("Stream", data.flatrate) +
+    section("Rent", data.rent) +
+    section("Buy", data.buy);
   const link = data.link
-    ? `<a class="prov-link" href="${data.link}" target="_blank" rel="noopener">See all options on JustWatch ↗</a>`
+    ? `<a class="prov-link" href="${data.link}" target="_blank" rel="noopener">See all options on JustWatch</a>`
     : "";
   return `<div class="card">
-    <h3>📺 Where to watch <span class="region-badge">${escapeHtml(region)}</span></h3>
+    <h3>Where to watch <span class="region-badge">${escapeHtml(region)}</span></h3>
     ${body || `<p class="cast-role">No options listed for ${escapeHtml(region)}.</p>`}
     ${link}
   </div>`;
 }
 
-/* Spoiler-free "more like this" — TMDB recommendations are metadata-based
+/* Spoiler-free "more like this". TMDB recommendations are metadata-based
  * (same audience/genre), not plot-based, so they're safe to show. */
 function buildRecommendationsCard(movie) {
   const recs = (movie.recommendations?.results || [])
@@ -403,7 +403,7 @@ function buildRecommendationsCard(movie) {
     })
     .join("");
   return `<div class="card full">
-    <h3>🍿 If you like this, brief yourself on…</h3>
+    <h3>If you liked this, brief yourself on</h3>
     <div class="rec-list">${items}</div>
   </div>`;
 }
@@ -426,17 +426,17 @@ function renderBriefing(movie, collection) {
     : "";
   const poster = movie.poster_path
     ? `<img class="hero-poster" src="${IMG_BASE}/w342${movie.poster_path}" alt="${escapeHtml(movie.title)} poster" />`
-    : `<div class="hero-poster">🎬</div>`;
+    : `<div class="hero-poster"></div>`;
 
   const metaPills = [
-    year && `<span class="pill">📅 ${year}</span>`,
-    runtime && `<span class="pill">⏱️ ${runtime}</span>`,
-    cert && `<span class="pill rating">🔞 ${escapeHtml(cert)}</span>`,
+    year && `<span class="pill">${year}</span>`,
+    runtime && `<span class="pill">${runtime}</span>`,
+    cert && `<span class="pill rating">Rated ${escapeHtml(cert)}</span>`,
     movie.vote_average
-      ? `<span class="pill accent">⭐ ${movie.vote_average.toFixed(1)}/10</span>`
+      ? `<span class="pill accent">${movie.vote_average.toFixed(1)}/10</span>`
       : "",
     movie.original_language &&
-      `<span class="pill">🗣️ ${movie.original_language.toUpperCase()}</span>`,
+      `<span class="pill">${movie.original_language.toUpperCase()}</span>`,
   ]
     .filter(Boolean)
     .join("");
@@ -454,7 +454,7 @@ function renderBriefing(movie, collection) {
         const isCurrent = p.id === movie.id;
         return `<div class="series-item ${isCurrent ? "current" : ""}">
           <span class="series-num">${i + 1}</span>
-          <span class="series-title">${escapeHtml(p.title)}${isCurrent ? " — you're watching this" : ""}</span>
+          <span class="series-title">${escapeHtml(p.title)}${isCurrent ? " (you're watching this)" : ""}</span>
           <span class="series-year">${py}</span>
         </div>`;
       })
@@ -463,10 +463,10 @@ function renderBriefing(movie, collection) {
       currentIdx > 0
         ? `This is entry <strong>#${currentIdx + 1}</strong> of ${parts.length} in the <strong>${escapeHtml(
             collection.name
-          )}</strong>. There ${currentIdx === 1 ? "is 1 film" : `are ${currentIdx} films`} before it — worth knowing the broad strokes going in, but you don't need every detail.`
-        : `This kicks off the <strong>${escapeHtml(collection.name)}</strong>. No prior films required — you're at the start.`;
+          )}</strong>. There ${currentIdx === 1 ? "is 1 film" : `are ${currentIdx} films`} before it. It's worth knowing the broad strokes going in, but you don't need every detail.`
+        : `This kicks off the <strong>${escapeHtml(collection.name)}</strong>, so no prior films required. You're at the start.`;
     seriesCard = `<div class="card full">
-      <h3>📚 Where it sits in the series</h3>
+      <h3>Where it sits in the series</h3>
       <div class="watch-note">${posNote}</div>
       <div class="series-list" style="margin-top:14px">${items}</div>
     </div>`;
@@ -478,12 +478,12 @@ function renderBriefing(movie, collection) {
         .map((c) => {
           const photo = c.profile_path
             ? `<img class="cast-photo" src="${IMG_BASE}/w185${c.profile_path}" alt="" loading="lazy" />`
-            : `<span class="cast-photo">🎭</span>`;
+            : `<span class="cast-photo"></span>`;
           return `<div class="cast-item">
             ${photo}
             <div>
               <div class="cast-name">${escapeHtml(c.name)}</div>
-              <div class="cast-role">as ${escapeHtml(c.character || "—")}</div>
+              <div class="cast-role">as ${escapeHtml(c.character || "")}</div>
             </div>
           </div>`;
         })
@@ -518,26 +518,26 @@ function renderBriefing(movie, collection) {
         ${movie.tagline ? `<p class="hero-tag">"${escapeHtml(movie.tagline)}"</p>` : ""}
         <div class="meta-row">${metaPills}</div>
         <div class="genres">${genres.map((g) => `<span class="genre-tag">${escapeHtml(g)}</span>`).join("")}</div>
-        <button class="share-btn" data-id="${movie.id}" data-title="${escapeHtml(movie.title)}">🔗 Share this briefing</button>
+        <button class="share-btn" data-id="${movie.id}" data-title="${escapeHtml(movie.title)}">Share this briefing</button>
       </div>
     </div>
 
     <div class="grid">
       <div class="card full">
-        <h3>🎯 The premise (spoiler-free)</h3>
+        <h3>The premise (spoiler-free)</h3>
         <p>${premise ? escapeHtml(premise) : "No premise available for this title."}</p>
-        <span class="spoiler-note">✔ Trimmed to the setup only — no plot turns or ending revealed.</span>
+        <span class="spoiler-note">Trimmed to the setup only. No plot turns or ending revealed.</span>
       </div>
 
       ${seriesCard}
 
       <div class="card">
-        <h3>🎭 Who you'll see</h3>
+        <h3>Who you'll see</h3>
         <div class="cast-list">${castHtml}</div>
       </div>
 
       <div class="card">
-        <h3>📋 Good to know</h3>
+        <h3>Good to know</h3>
         <ul class="facts">${factsHtml}</ul>
         ${
           cert
@@ -569,7 +569,7 @@ function renderBriefing(movie, collection) {
       url.searchParams.set("movie", shareBtn.dataset.id);
       const shareUrl = url.toString();
       const shareData = {
-        title: `${shareBtn.dataset.title} — All You Need to Know`,
+        title: `${shareBtn.dataset.title}, All You Need to Know`,
         text: `Spoiler-free briefing for ${shareBtn.dataset.title}`,
         url: shareUrl,
       };
@@ -578,8 +578,8 @@ function renderBriefing(movie, collection) {
           await navigator.share(shareData);
         } else {
           await navigator.clipboard.writeText(shareUrl);
-          shareBtn.textContent = "✔ Link copied!";
-          setTimeout(() => (shareBtn.textContent = "🔗 Share this briefing"), 1800);
+          shareBtn.textContent = "Link copied";
+          setTimeout(() => (shareBtn.textContent = "Share this briefing"), 1800);
         }
       } catch (_) { /* user cancelled */ }
     });
@@ -588,7 +588,7 @@ function renderBriefing(movie, collection) {
 
 /* ---------- UI states ---------- */
 function showLoading() {
-  els.main.innerHTML = `<div class="state-msg"><div class="spinner"></div>Building your spoiler-free briefing…</div>`;
+  els.main.innerHTML = `<div class="state-msg"><div class="spinner"></div>Building your spoiler-free briefing</div>`;
 }
 
 function showError(title, msg, action) {
@@ -655,15 +655,15 @@ els.saveKey.addEventListener("click", async () => {
     return;
   }
   localStorage.setItem(KEY_STORAGE, val);
-  els.keyStatus.textContent = "Checking key…";
+  els.keyStatus.textContent = "Checking key";
   els.keyStatus.className = "key-status";
   try {
     await authFetch("/configuration");
-    els.keyStatus.textContent = "✔ Key works and is saved on this device.";
+    els.keyStatus.textContent = "Key works and is saved on this device.";
     els.keyStatus.className = "key-status ok";
     setTimeout(closeSettings, 800);
   } catch (err) {
-    els.keyStatus.textContent = "✕ TMDB rejected that key. Check it and try again.";
+    els.keyStatus.textContent = "TMDB rejected that key. Check it and try again.";
     els.keyStatus.className = "key-status err";
   }
 });

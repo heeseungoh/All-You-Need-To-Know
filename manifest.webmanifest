@@ -1,7 +1,7 @@
 {
-  "name": "All You Need to Know — Spoiler-Free Movie Briefing",
+  "name": "All You Need to Know: Spoiler-Free Movie Briefing",
   "short_name": "All You Need to Know",
-  "description": "Everything you need before a movie — cast, director, series order, content rating, and a spoiler-free premise. No spoilers, just context.",
+  "description": "Everything you need before a movie: cast, director, series order, content rating, and a spoiler-free premise. No spoilers, just context.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0d1117",
