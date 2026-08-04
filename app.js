@@ -206,7 +206,7 @@ async function selectMovie(id) {
   try {
     const movie = await authFetch(`/movie/${id}`, {
       language: "en-US",
-      append_to_response: "credits,release_dates,watch/providers",
+      append_to_response: "credits,release_dates,watch/providers,recommendations",
     });
     // Collection details (series order) if part of one.
     let collection = null;
@@ -382,6 +382,29 @@ function buildProvidersCard(movie) {
   </div>`;
 }
 
+/* Spoiler-free "more like this" — TMDB recommendations are metadata-based
+ * (same audience/genre), not plot-based, so they're safe to show. */
+function buildRecommendationsCard(movie) {
+  const recs = (movie.recommendations?.results || [])
+    .filter((r) => r.poster_path)
+    .slice(0, 8);
+  if (!recs.length) return "";
+  const items = recs
+    .map((r) => {
+      const y = r.release_date ? r.release_date.slice(0, 4) : "";
+      return `<button class="rec-item" data-id="${r.id}">
+        <img src="${IMG_BASE}/w185${r.poster_path}" alt="${escapeHtml(r.title)}" loading="lazy" />
+        <span class="rec-title">${escapeHtml(r.title)}</span>
+        ${y ? `<span class="rec-year">${y}</span>` : ""}
+      </button>`;
+    })
+    .join("");
+  return `<div class="card full">
+    <h3>🍿 If you like this, brief yourself on…</h3>
+    <div class="rec-list">${items}</div>
+  </div>`;
+}
+
 function renderBriefing(movie, collection) {
   const year = movie.release_date ? movie.release_date.slice(0, 4) : "";
   const cert = getCertification(movie);
@@ -524,14 +547,21 @@ function renderBriefing(movie, collection) {
 
       ${buildProvidersCard(movie)}
     </div>
+    ${buildRecommendationsCard(movie)}
   `;
 
   els.main.innerHTML = "";
   els.main.appendChild(briefing);
 
+  briefing.querySelectorAll(".rec-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      selectMovie(Number(btn.dataset.id));
+    });
+  });
+
   const shareBtn = briefing.querySelector(".share-btn");
-  if (shareBtn) {
-    shareBtn.addEventListener("click", async () => {
+  if (shareBtn) {    shareBtn.addEventListener("click", async () => {
       const url = new URL(window.location.href);
       url.searchParams.set("movie", shareBtn.dataset.id);
       const shareUrl = url.toString();
