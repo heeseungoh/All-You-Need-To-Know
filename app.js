@@ -9,6 +9,12 @@
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p";
 const KEY_STORAGE = "tmdb_key_v1";
+const REGION_STORAGE = "tmdb_region_v1";
+const DEFAULT_REGION = "US";
+
+function getRegion() {
+  return localStorage.getItem(REGION_STORAGE) || DEFAULT_REGION;
+}
 
 const els = {
   searchInput: document.getElementById("searchInput"),
@@ -23,6 +29,7 @@ const els = {
   saveKey: document.getElementById("saveKey"),
   clearKey: document.getElementById("clearKey"),
   keyStatus: document.getElementById("keyStatus"),
+  regionSelect: document.getElementById("regionSelect"),
   exampleChips: document.getElementById("exampleChips"),
 };
 
@@ -171,7 +178,7 @@ async function selectMovie(id) {
   try {
     const movie = await authFetch(`/movie/${id}`, {
       language: "en-US",
-      append_to_response: "credits,release_dates,collection",
+      append_to_response: "credits,release_dates,watch/providers",
     });
     // Collection details (series order) if part of one.
     let collection = null;
@@ -225,6 +232,55 @@ function fmtRuntime(min) {
 function fmtMoney(n) {
   if (!n) return null;
   return "$" + n.toLocaleString("en-US");
+}
+
+/* Build a spoiler-free "where to watch" card from watch/providers.
+ * TMDB provider data is powered by JustWatch. We show stream / rent / buy
+ * options for the user's region, with a link to the JustWatch page. */
+function buildProvidersCard(movie) {
+  const region = getRegion();
+  const all = movie["watch/providers"]?.results || {};
+  const data = all[region];
+  if (!data) {
+    return `<div class="card">
+      <h3>📺 Where to watch</h3>
+      <p class="cast-role">No streaming, rental, or purchase options listed for ${escapeHtml(
+        region
+      )}. Try another region in ⚙️ settings.</p>
+    </div>`;
+  }
+  const section = (label, list, icon) => {
+    if (!list || !list.length) return "";
+    const logos = list
+      .slice(0, 8)
+      .map(
+        (p) =>
+          `<span class="prov" title="${escapeHtml(p.provider_name)}">${
+            p.logo_path
+              ? `<img src="${IMG_BASE}/w45${p.logo_path}" alt="${escapeHtml(
+                  p.provider_name
+                )}" loading="lazy" />`
+              : escapeHtml(p.provider_name)
+          }</span>`
+      )
+      .join("");
+    return `<div class="prov-group">
+      <span class="prov-label">${icon} ${label}</span>
+      <div class="prov-logos">${logos}</div>
+    </div>`;
+  };
+  const body =
+    section("Stream", data.flatrate, "▶️") +
+    section("Rent", data.rent, "💵") +
+    section("Buy", data.buy, "🛒");
+  const link = data.link
+    ? `<a class="prov-link" href="${data.link}" target="_blank" rel="noopener">See all options on JustWatch ↗</a>`
+    : "";
+  return `<div class="card">
+    <h3>📺 Where to watch <span class="region-badge">${escapeHtml(region)}</span></h3>
+    ${body || `<p class="cast-role">No options listed for ${escapeHtml(region)}.</p>`}
+    ${link}
+  </div>`;
 }
 
 function renderBriefing(movie, collection) {
@@ -365,6 +421,8 @@ function renderBriefing(movie, collection) {
             : ""
         }
       </div>
+
+      ${buildProvidersCard(movie)}
     </div>
   `;
 
@@ -409,6 +467,7 @@ function handleKeyError(err) {
 function openSettings(statusMsg) {
   els.settingsModal.hidden = false;
   els.apiKeyInput.value = getKey();
+  if (els.regionSelect) els.regionSelect.value = getRegion();
   if (statusMsg) {
     els.keyStatus.textContent = statusMsg;
     els.keyStatus.className = "key-status";
@@ -423,6 +482,11 @@ function closeSettings() {
 }
 els.settingsBtn.addEventListener("click", () => openSettings());
 els.closeSettings.addEventListener("click", closeSettings);
+if (els.regionSelect) {
+  els.regionSelect.addEventListener("change", () => {
+    localStorage.setItem(REGION_STORAGE, els.regionSelect.value);
+  });
+}
 els.settingsModal.addEventListener("click", (e) => {
   if (e.target === els.settingsModal) closeSettings();
 });
