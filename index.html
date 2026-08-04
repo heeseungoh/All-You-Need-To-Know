@@ -17,7 +17,10 @@
           <p class="tagline">Everything you need before the movie — none of what you shouldn't know.</p>
         </a>
       </div>
-      <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
+      <div class="topbar-actions">
+        <button id="themeBtn" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+        <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Settings">⚙️</button>
+      </div>
     </header>
 
     <section class="search-wrap">
@@ -31,6 +34,7 @@
           spellcheck="false"
         />
         <button id="clearBtn" class="clear-btn" aria-label="Clear" hidden>✕</button>
+        <kbd class="search-kbd">/</kbd>
       </div>
       <ul id="suggestions" class="suggestions" hidden></ul>
     </section>

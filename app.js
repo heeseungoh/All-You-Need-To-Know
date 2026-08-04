@@ -31,7 +31,35 @@ const els = {
   keyStatus: document.getElementById("keyStatus"),
   regionSelect: document.getElementById("regionSelect"),
   exampleChips: document.getElementById("exampleChips"),
+  themeBtn: document.getElementById("themeBtn"),
 };
+
+/* ---------- Theme ---------- */
+const THEME_STORAGE = "theme_v1";
+function applyTheme(theme) {
+  if (theme === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+    if (els.themeBtn) els.themeBtn.textContent = "☀️";
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    if (els.themeBtn) els.themeBtn.textContent = "🌙";
+  }
+}
+function initTheme() {
+  const saved = localStorage.getItem(THEME_STORAGE);
+  const prefersLight =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: light)").matches;
+  applyTheme(saved || (prefersLight ? "light" : "dark"));
+}
+if (els.themeBtn) {
+  els.themeBtn.addEventListener("click", () => {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const next = isLight ? "dark" : "light";
+    localStorage.setItem(THEME_STORAGE, next);
+    applyTheme(next);
+  });
+}
 
 /* ---------- API key handling ---------- */
 function getKey() {
@@ -634,8 +662,28 @@ function escapeHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
+/* ---------- Global keyboard shortcuts ---------- */
+document.addEventListener("keydown", (e) => {
+  const typing =
+    document.activeElement &&
+    ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName);
+  // "/" or Ctrl/Cmd+K focuses search
+  if ((e.key === "/" && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k")) {
+    e.preventDefault();
+    els.searchInput.focus();
+    els.searchInput.select();
+  }
+  // Escape closes modal / suggestions / blurs search
+  if (e.key === "Escape") {
+    if (!els.settingsModal.hidden) closeSettings();
+    else if (!els.suggestions.hidden) hideSuggestions();
+    else if (document.activeElement === els.searchInput) els.searchInput.blur();
+  }
+});
+
 /* ---------- Init ---------- */
 (function init() {
+  initTheme();
   renderHistory();
   const params = new URLSearchParams(window.location.search);
   const movieId = params.get("movie");
